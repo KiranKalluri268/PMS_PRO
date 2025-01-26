@@ -51,23 +51,6 @@
   background-color: #970f0f;
 }
 
-/* Footer styling */
-.footer {
-  width: 100%;
-  background-color: #333; /* Dark background color */
-  color: white;
-  text-align: center;
-  padding: 10px 0;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  position: absolute;
-  bottom: 0;
-}
-
-.footer p {
-  margin: 0;
-  font-size: 14px;
-}
-
 /* Responsive Design for Tablets and Mobile */
 @media (max-width: 768px) {
   .batch-list {

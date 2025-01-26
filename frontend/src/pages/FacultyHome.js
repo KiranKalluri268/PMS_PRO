@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { getCertificates } from '../api';
+import { getPapers } from '../api';
 import { useNavigate } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
 import '../facultyhome.css';
 
 const FacultyHome = () => {
-  const { rollNumber: studentId } = useParams();
-  const [certificates, setCertificates] = useState([]);
+  const { id: facultyId } = useParams();
+  const [papers, setPapers] = useState([]); // Updated to papers
   const navigate = useNavigate();
   const token = localStorage.getItem('authToken');
   console.log("token in facultyhome:", token);
+  console.log("UserId",facultyId)
 
   useEffect(() => {
     if (!token) {
@@ -18,69 +19,31 @@ const FacultyHome = () => {
   }, [navigate, token]);
 
   useEffect(() => {
-    const fetchCertificates = async () => {
+    const fetchPapers = async () => {
       try {
-        const res = await getCertificates(studentId, token);
-        // Assuming the response contains metadata and downloadLink from Cloudinary
-        const sortedCertificates = (res.data || []).sort(
-          (a, b) => new Date(a.toDate) - new Date(b.toDate)
+        const res = await getPapers(facultyId, token);
+        const sortedPapers = (res.data || []).sort(
+          (a, b) => new Date(a.publishDate) - new Date(b.publishDate)
         );
-        setCertificates(sortedCertificates);
+        setPapers(sortedPapers);
       } catch (error) {
         if (error.response && error.response.status === 401) {
-          // Token expired or authentication error
           alert("Session expired. Please log in again.");
-          localStorage.removeItem("authToken"); // Clear the token
-          navigate("/"); // Redirect to login page
+          localStorage.removeItem("authToken");
+          navigate("/");
         } else {
-        console.error('Error fetching certificates:', error);
+          console.error('Error fetching papers:', error);
         }
       }
     };
-    fetchCertificates();
-  }, [studentId, token, navigate]);
+    fetchPapers();
+  }, [facultyId, token, navigate]);
 
-  const handleDownload = async (downloadLink, fileName) => {
-    if (!downloadLink) {
-      alert("No download link available.");
-      return;
-    }
-  
-    // Ensure the filename ends with .pdf
-    const fileNameWithExtension = fileName.endsWith('.pdf') ? fileName : `${fileName}.pdf`;
-  
-    try {
-      // Fetch the file as a blob
-      const response = await fetch(downloadLink);
-      if (!response.ok) {
-        throw new Error('Failed to fetch the file.');
-      }
-      const blob = await response.blob();
-  
-      // Create a download link with the blob
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = fileNameWithExtension;
-  
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-  
-      // Revoke the object URL
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error('Error downloading file:', error);
-      alert('Failed to download the file.');
-    }
-  };  
-  
-
-  const handleCertificateLinkClick = (certificateLink) => {
-    if (certificateLink) {
-      window.open(certificateLink, '_blank');
+  const handlePaperLinkClick = (paperLink) => {
+    if (paperLink) {
+      window.open(paperLink, '_blank');
     } else {
-      alert('No link available for this certificate.');
+      alert('No link available for this paper.');
     }
   };
 
@@ -94,7 +57,6 @@ const FacultyHome = () => {
 
   return (
     <div className="Faculty-container">
-      {/* Header Section */}
       <header className="FacultyHeader">
         <img src="/images/Vaagdevi.png" alt="Logo" className="FacultyHeader-logo" />
         <img
@@ -123,54 +85,46 @@ const FacultyHome = () => {
               <th>DOI</th>
               <th>Volume</th>
               <th>Page Numbers</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {certificates.length > 0 ? (
-              certificates.map((cert, index) => {
-                const fromDate = new Date(cert.fromDate).toLocaleDateString();
-                const toDate = new Date(cert.toDate).toLocaleDateString();
-                const academicYear = `${new Date(cert.toDate).getFullYear() - 1}-${new Date(cert.toDate).getFullYear()}`;
+            {papers.length > 0 ? (
+              papers.map((paper, index) => {
+                const publishDate = new Date(paper.publishDate).toLocaleDateString();
+                const acceptDate = new Date(paper.acceptDate).toLocaleDateString();
 
                 return (
-                  <tr key={cert.certificateId}>
+                  <tr key={paper.paperId}>
                     <td>{index + 1}</td>
-                    <td>
-                      <span
-                        style={{ color: cert.certificateLink ? 'blue' : 'black', cursor: cert.certificateLink ? 'pointer' : 'default' }}
-                        onClick={() => handleCertificateLinkClick(cert.certificateLink)}
-                      >
-                        {cert.course}
-                      </span>
-                    </td>
-                    <td>{cert.organisation}</td>
-                    <td>{fromDate}</td>
-                    <td>{toDate}</td>
-                    <td>{academicYear}</td>
+                    <td>{paper.title}</td>
+                    <td>{paper.indexing}</td>
+                    <td>{paper.transactions}</td>
+                    <td>{acceptDate}</td>
+                    <td>{publishDate}</td>
+                    <td>{paper.doi}</td>
+                    <td>{paper.volume}</td>
+                    <td>{paper.pageNumbers}</td>
                     <td>
                       <button
-                        onClick={() => handleDownload(cert.downloadLink, `${cert.course}.pdf`)}
-                        disabled={!cert.downloadLink}
+                        onClick={() => handlePaperLinkClick(paper.paperLink)}
+                        disabled={!paper.paperLink}
                       >
-                        {cert.downloadLink ? 'Download' : 'No PDF Available'}
+                        {paper.paperLink ? 'View' : 'Unavailable'}
                       </button>
-                    </td>
-                    <td>
-                      <button onClick={() => navigate(`/edit-certificate/${cert.certificateId}`)}>Edit</button>
-                    </td>
+                  </td>
                   </tr>
                 );
               })
             ) : (
               <tr>
-                <td colSpan="8">No Papers found</td>
+                <td colSpan="9">No Papers found</td>
               </tr>
             )}
           </tbody>
         </table>
       </div>
 
-      {/* Footer Section */}
       <footer className="footer">
         <p>&copy; 2024 Vaagdevi Colleges. All Rights Reserved.</p>
       </footer>

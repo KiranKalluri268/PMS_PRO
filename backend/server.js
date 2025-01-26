@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const authRoutes = require("./routes/auth");
-const certificateRoutes = require("./routes/certificates");
+const papersRoutes = require("./routes/papers");
 const batchRoutes = require("./routes/batches");
 const adminRoutes = require("./routes/admin");
 const dotenv = require("dotenv");
@@ -60,7 +60,7 @@ app.get('/', (req, res) => {
 
 // API Routes
 app.use("/api/auth", authRoutes);  // For authentication (register/login)
-app.use("/api/certificates", certificateRoutes);  // For certificates
+app.use("/api/papers", papersRoutes);  // For certificates
 app.use("/api/batches", batchRoutes);  // For batches
 app.use("/api/admin", adminRoutes);  // For admin functionalities
 

@@ -11,7 +11,8 @@
 
 .LoginHeader {
   width: 100%;
-  background-color: #dfdddd65;
+  background-color: #dfdddd00;
+  backdrop-filter: blur(10px);
   padding: 20px 0;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
   text-align: center;
@@ -24,14 +25,14 @@
   height: auto; /* Maintain aspect ratio */
   max-width: 650px; /* Set a max width for large screens */
   object-fit: contain; /* Ensure the image fits without distortion */
-  background-color: #dfdddd2f;
+  background-color: #dfdddd00;
 }
 
 /* Login form box */
 .login-box {
-  background-color: #dfdddd65;
+  backdrop-filter: blur(5px); /* Apply the blur effect */
   padding: 30px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.9);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
   border-radius: 8px;
   width: 300px;
   text-align: center;
@@ -95,23 +96,6 @@
   font-size: 24px;
   margin-top: 0px;
   margin-bottom: 30px;
-}
-
-/* Footer styling */
-.footer {
-  width: 100%;
-  background-color: #333;
-  color: white;
-  text-align: center;
-  padding: 10px 0;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  position: absolute;
-  bottom: 0;
-}
-
-.footer p {
-  margin: 0;
-  font-size: 14px;
 }
 
 /* Mobile responsiveness */

@@ -2,12 +2,10 @@ import axios from "axios";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
-// Axios instance to set default headers
 const API = axios.create({
   baseURL: API_URL,
 });
 
-// Function to set Authorization header
 export const setAuthToken = (token) => {
   if (token) {
     API.defaults.headers.common["x-auth-token"] = token;
@@ -26,9 +24,9 @@ export const loginUser = (userData) => {
   return API.post("/api/auth/login", userData);
 };
 
-// Upload a certificate with authentication
-export const uploadCertificate = (data, token) => {
-  return API.post("/api/certificates/upload", data, {
+// Upload a paper with authentication
+export const uploadPaper = (data, token) => {
+  return API.post("/api/papers/upload", data, {
     headers: {
       "x-auth-token": token,
       "Content-Type": "multipart/form-data",
@@ -36,18 +34,18 @@ export const uploadCertificate = (data, token) => {
   });
 };
 
-// Fetch certificates for a specific student using their roll number (Authenticated)
-export const getCertificates = (studentId, token) => {
-  return API.get(`/api/certificates/student/${studentId}`, {
+// Fetch papers for a specific student using their email (Authenticated)
+export const getPapers = (facultyId, token) => {
+  return API.get(`/api/papers/faculty/${facultyId}`, {
     headers: {
       "x-auth-token": token,
     },
   });
 };
 
-// Fetch all certificates (Admin only)
-export const fetchAllCertificates = (token) => {
-  return API.get('/api/certificates', {
+// Fetch all papers (Admin only)
+export const fetchAllPapers = (token) => {
+  return API.get('/api/papers', {
     headers: {
       "x-auth-token": token,
     },
@@ -68,9 +66,9 @@ export const fetchStudentsByBatch = (batchId, token) => {
   });
 };
 
-// Fetch certificates by academic year for filtering (Admin)
-export const fetchCertificatesByYear = (year, token) => {
-  return API.get(`/api/certificates/year/${year}`, {
+// Fetch papers by academic year for filtering (Admin)
+export const fetchPapersByYear = (year, token) => {
+  return API.get(`/api/papers/year/${year}`, {
     headers: {
       "x-auth-token": token,
     },
