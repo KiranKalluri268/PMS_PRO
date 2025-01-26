@@ -41,6 +41,7 @@ exports.uploadPaper = async (req, res) => {
 
     const paperId = pdfId || `paper-${Date.now()}`; // Unique Paper ID
     const paperItem = {
+      facultyId: req.facultyId,
       PaperId: paperId, // Correct key for DynamoDB
       title,
       indexing,
@@ -170,8 +171,33 @@ exports.getPaperById = async (req, res) => {
 };
 
 exports.getPapersByFaculty = async (req, res) => {
-  
-}
+  const facultyId = req.facultyId;
+
+  try {
+    const response = await dynamoDB.send(
+      new QueryCommand({
+        TableName: PAPERS_TABLE,
+        IndexName: "facultyId-index",
+        KeyConditionExpression: "facultyId = :facultyId",
+        ExpressionAttributeValues: marshall({
+          ":facultyId": facultyId,
+        }),
+      })
+    );
+
+    const papers = response.Items.map(item => unmarshall(item));
+
+    if (papers.length === 0) {
+      return res.status(404).json({ message: "No papers found" });
+    }
+    console.log("Fetched papers:",papers)
+
+    res.status(200).json(papers);
+  } catch (error) {
+    console.error("Error fetching papers:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 
 // Delete a paper
 exports.deletePaper = async (req, res) => {

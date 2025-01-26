@@ -39,6 +39,41 @@ const FacultyHome = () => {
     fetchPapers();
   }, [facultyId, token, navigate]);
 
+  const handleDownload = async (downloadLink, fileName) => {
+    if (!downloadLink) {
+      alert("No download link available.");
+      return;
+    }
+  
+    // Ensure the filename ends with .pdf
+    const fileNameWithExtension = fileName.endsWith('.pdf') ? fileName : `${fileName}.pdf`;
+  
+    try {
+      // Fetch the file as a blob
+      const response = await fetch(downloadLink);
+      if (!response.ok) {
+        throw new Error('Failed to fetch the file.');
+      }
+      const blob = await response.blob();
+  
+      // Create a download link with the blob
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileNameWithExtension;
+  
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+  
+      // Revoke the object URL
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading file:', error);
+      alert('Failed to download the file.');
+    }
+  };
+
   const handlePaperLinkClick = (paperLink) => {
     if (paperLink) {
       window.open(paperLink, '_blank');
@@ -97,22 +132,29 @@ const FacultyHome = () => {
                 return (
                   <tr key={paper.paperId}>
                     <td>{index + 1}</td>
-                    <td>{paper.title}</td>
+                    <td>
+                      <span
+                        style={{ color: paper.paperLink ? 'blue' : 'black', cursor: paper.paperLink ? 'pointer' : 'default' }}
+                        onClick={() => handlePaperLinkClick(paper.paperLink)}
+                      >
+                        {paper.title}
+                      </span>
+                    </td>
                     <td>{paper.indexing}</td>
                     <td>{paper.transactions}</td>
-                    <td>{acceptDate}</td>
-                    <td>{publishDate}</td>
+                    <td>{paper.dateOfAcceptance}</td>
+                    <td>{paper.dateOfPublishing}</td>
                     <td>{paper.doi}</td>
                     <td>{paper.volume}</td>
                     <td>{paper.pageNumbers}</td>
                     <td>
                       <button
-                        onClick={() => handlePaperLinkClick(paper.paperLink)}
-                        disabled={!paper.paperLink}
+                        onClick={() => handleDownload(paper.downloadLink, `${paper.title}.pdf`)}
+                        disabled={!paper.downloadLink}
                       >
-                        {paper.paperLink ? 'View' : 'Unavailable'}
+                        {paper.downloadLink ? 'Download' : 'No PDF Available'}
                       </button>
-                  </td>
+                    </td>
                   </tr>
                 );
               })
