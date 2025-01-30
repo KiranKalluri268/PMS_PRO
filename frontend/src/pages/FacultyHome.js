@@ -126,8 +126,6 @@ const FacultyHome = () => {
           <tbody>
             {papers.length > 0 ? (
               papers.map((paper, index) => {
-                const publishDate = new Date(paper.publishDate).toLocaleDateString();
-                const acceptDate = new Date(paper.acceptDate).toLocaleDateString();
 
                 return (
                   <tr key={paper.paperId}>
