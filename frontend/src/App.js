@@ -29,7 +29,7 @@ function App() {
         <Route path="/admin-home" element={<AdminHome />} />
         <Route path="/add-paper" element={<AddPaper />} />
         <Route path="/edit-paper/:id" element={<EditPaper/>} />
-        <Route path="/admin-report/:batchYear" element={<AdminReport/>} />
+        <Route path="/admin-report/:paperType" element={<AdminReport/>} />
         <Route path="/verify-email" element={<VerifyEmail/>} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />

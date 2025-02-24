@@ -14,17 +14,7 @@ exports.uploadPaper = async (req, res) => {
   console.log("Uploaded file:", req.file);
 
   try {
-    const {
-      title,
-      indexing,
-      transactions,
-      dateOfAcceptance,
-      dateOfPublishing,
-      doi,
-      volume,
-      pageNumbers,
-      paperLink,
-    } = req.body;
+    const { paperLink, ...otherFields } = req.body; // Extracting all fields dynamically
 
     if (!req.file && !paperLink) {
       return res.status(400).json({ message: "Please provide either a PDF or a paper link." });
@@ -34,25 +24,22 @@ exports.uploadPaper = async (req, res) => {
     let downloadLink = null;
 
     if (req.file) {
-      const uploadResponse = await uploadFile(req.file.buffer, { title });
+      const uploadResponse = await uploadFile(req.file.buffer, { title: req.body.title || "Untitled" });
       pdfId = String(uploadResponse.public_id);
       downloadLink = uploadResponse.secure_url;
     }
 
     const paperId = pdfId || `paper-${Date.now()}`; // Unique Paper ID
+
+    // Constructing the paper item dynamically
+    const uploadedAt = new Date().toISOString();
     const paperItem = {
       facultyId: req.facultyId,
       PaperId: paperId, // Correct key for DynamoDB
-      title,
-      indexing,
-      transactions,
-      dateOfAcceptance,
-      dateOfPublishing,
-      doi,
-      volume,
-      pageNumbers,
-      ...(paperLink ? { paperLink: paperLink } : {}), 
-      ...(downloadLink ? { downloadLink: downloadLink } : {}),
+      uploadedAt,
+      ...otherFields, // Adds all received fields dynamically
+      ...(paperLink ? { paperLink } : {}),
+      ...(downloadLink ? { downloadLink } : {}),
     };
 
     console.log("New Paper Item:", paperItem);

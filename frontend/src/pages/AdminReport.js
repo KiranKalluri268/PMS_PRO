@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import * as XLSX from "xlsx"; // Import XLSX library
+import * as XLSX from "xlsx";
 import "../adminreport.css";
 
 const AdminReport = () => {
-  const { batchYear } = useParams(); // Get batchYear from URL params
-  const [certificates, setCertificates] = useState([]);
-  const [filteredCertificates, setFilteredCertificates] = useState([]);
-  const [academicYear, setAcademicYear] = useState(""); // State for filtering by academic year
-  const [years, setYears] = useState([]); // State for storing available academic years
+  const { paperType } = useParams();
+  const [papers, setPapers] = useState([]);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const [lastEvaluatedKey, setLastEvaluatedKey] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
@@ -20,114 +19,84 @@ const AdminReport = () => {
   }, [navigate]);
 
   useEffect(() => {
-    const fetchCertificates = async () => {
+    let isFetching = false;
+
+    const fetchPapers = async () => {
+      console.log(`Fetching ${paperType} papers...`);
+
+      if (isFetching) return;
+      isFetching = true;
+      setLoading(true);
+      let nextKey = lastEvaluatedKey;
+
       try {
-        const response = await axios.get(`/api/admin/certificates?year=${batchYear}`, {
-          headers: { "x-auth-token": localStorage.getItem("authToken") },
-        });
+        do {
+          const response = await axios.get(`/api/admin/papers`, {
+            params: {
+              type: paperType,
+              lastEvaluatedKey: nextKey ? JSON.stringify(nextKey) : undefined,
+            },
+            headers: { "x-auth-token": localStorage.getItem("authToken") },
+          });
 
-        const certificates = Array.isArray(response.data.certificates) ? response.data.certificates : [];
-        const sortedCertificates = certificates.sort((a, b) => {
-          const dateA = new Date(a.toDate);
-          const dateB = new Date(b.toDate);
-          if (isNaN(dateA)) return 1;
-          if (isNaN(dateB)) return -1;
-          return dateA - dateB;
-        });
+          console.log("API Response:", response.data);
 
-        setCertificates(sortedCertificates);
-        setFilteredCertificates(sortedCertificates);
+          const newPapers = response.data.papers || [];
+          if (newPapers.length === 0 && !response.data.lastEvaluatedKey) {
+            console.log("No more papers to fetch.");
+            setLastEvaluatedKey(null);
+            break;
+          }
 
-        const uniqueYears = [...new Set(sortedCertificates.map(c => new Date(c.toDate).getFullYear()))];
-        setYears(uniqueYears);
+          setPapers((prevPapers) => [...prevPapers, ...newPapers]);
+
+          nextKey = response.data.lastEvaluatedKey || null;
+          setLastEvaluatedKey(nextKey);
+        } while (nextKey);
       } catch (error) {
         if (error.response && error.response.status === 401) {
-          // Token expired or authentication error
           alert("Session expired. Please log in again.");
-          localStorage.removeItem("authToken"); // Clear the token
-          navigate("/"); // Redirect to login page
+          localStorage.removeItem("authToken");
+          navigate("/");
         } else {
-        console.error("Error fetching certificates:", error);
+          console.error("Error fetching papers:", error);
         }
+      } finally {
+        setLoading(false);
+        isFetching = false;
       }
     };
 
-    fetchCertificates();
-  }, [batchYear, navigate]);
+    fetchPapers();
+  }, [paperType, navigate]);
 
-  const handleFilterChange = (event) => {
-    const selectedYear = event.target.value;
-    setAcademicYear(selectedYear);
-
-    if (selectedYear) {
-      const filtered = certificates.filter(certificate => {
-        const toDateYear = new Date(certificate.toDate).getFullYear();
-        return toDateYear === parseInt(selectedYear);
-      });
-      setFilteredCertificates(filtered);
-    } else {
-      setFilteredCertificates(certificates);
-    }
+  // Define different column structures for each paper type
+  const paperFields = {
+    Journal: ["title", "indexing", "transactions", "dateOfAcceptance", "dateOfPublishing", "doi", "volume", "pageNumbers", "paperLink", "onlineLink"],
+    Conference: ["title", "indexing", "transactions", "dateOfAcceptance", "dateOfPublishing", "doi", "conferenceName", "paperLink", "onlineLink"],
+    "Book Chapter": ["title", "indexing", "transactions", "dateOfAcceptance", "dateOfPublishing", "doi", "bookTitle", "paperLink", "onlineLink"],
+    Textbook: ["title", "indexing", "transactions", "dateOfAcceptance", "dateOfPublishing", "doi", "bookTitle", "paperLink", "onlineLink"],
+    Patent: ["title", "filingDate", "dateOfPublishing", "GrantDate", "paperLink", "onlineLink"]
   };
 
-  const handleDownload = async (downloadLink, fileName) => {
-    if (!downloadLink) {
-      alert("No download link available.");
-      return;
-    }
-
-    const fileNameWithExtension = fileName.endsWith(".pdf") ? fileName : `${fileName}.pdf`;
-
-    try {
-      const response = await fetch(downloadLink);
-      if (!response.ok) {
-        throw new Error("Failed to fetch the file.");
-      }
-      const blob = await response.blob();
-
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = fileNameWithExtension;
-
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error('Error downloading file:', error);
-      alert('Failed to download the file.');
-    }
-  };
-
+  // Get column names dynamically based on paperType
+  const columns = paperFields[paperType] || [];
 
   const handleDownloadExcel = () => {
     const ws = XLSX.utils.json_to_sheet(
-      filteredCertificates.map((certificate, index) => ({
-        SNo: index + 1,
-        RollNo: certificate.student.rollNumber,
-        Name: certificate.student.name,
-        Organisation: certificate.organisation,
-        Course: certificate.course,
-        FromDate: new Date(certificate.fromDate).toLocaleDateString(),
-        ToDate: new Date(certificate.toDate).toLocaleDateString(),
-        AcademicYear: new Date(certificate.toDate).getFullYear(),
-      }))
+      papers.map((paper, index) => {
+        let rowData = { SNo: index + 1 };
+        columns.forEach((col) => {
+          rowData[col] = paper[col.toLowerCase().replace(/\s+/g, "")] || "N/A";
+        });
+        return rowData;
+      })
     );
 
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Certificates");
+    XLSX.utils.book_append_sheet(wb, ws, `${paperType}_Papers`);
 
-    XLSX.writeFile(wb, `Batch_${batchYear}_Certificates_Report.xlsx`);
-  };
-
-  const handleCertificateLinkClick = (certificateLink) => {
-    if (certificateLink) {
-      window.open(certificateLink, '_blank');
-    } else {
-      alert('No link available for this certificate.');
-    }
+    XLSX.writeFile(wb, `${paperType}_Papers_Report.xlsx`);
   };
 
   const handleLogout = () => {
@@ -142,85 +111,45 @@ const AdminReport = () => {
         <img
           src="/images/logout-icon.png"
           alt="Logout"
-          className="AdminReportLogoout-logo"
+          className="AdminReportLogout-logo"
           onClick={handleLogout}
         />
       </header>
 
       <div className="report-list">
-        <h2>Certificates for Batch {batchYear}</h2>
-
-        <div className="filter-container">
-          <label htmlFor="academic-year-filter">Filter by Academic Year:</label>
-          <select
-            id="academic-year-filter"
-            value={academicYear}
-            onChange={handleFilterChange}
-          >
-            <option value="">All Years</option>
-            {years.map(year => (
-              <option key={year} value={year}>{year}</option>
-            ))}
-          </select>
-        </div>
+        <h2 className="batch-title">Papers for {paperType}</h2>
 
         <button className="download-report-btn" onClick={handleDownloadExcel}>
           Download Report as Excel
         </button>
 
-        {filteredCertificates.length > 0 ? (
-          <div className="report-table-wrapper">
+        {papers.length > 0 ? (
+          <div className="table-wrapper">
             <table className="report-table">
               <thead>
-                <tr>
-                  <th>S.No</th>
-                  <th>Roll No</th>
-                  <th>Name</th>
-                  <th>Title of the event</th>
-                  <th>Organised by</th>
-                  <th>From</th>
-                  <th>To</th>
-                  <th>Academic Year</th>
-                  <th>Download</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredCertificates.map((certificate, index) => (
-                  <tr key={certificate.certificateId}>
-                    <td>{index + 1}</td>
-                    <td>{certificate.student.rollNumber}</td>
-                    <td>{certificate.student.name}</td>
-                    <td>
-                      <span
-                        style={{ color: certificate.certificateLink ? 'blue' : 'black', cursor: certificate.certificateLink ? 'pointer' : 'default' }}
-                        onClick={() => handleCertificateLinkClick(certificate.certificateLink)}
-                      >
-                        {certificate.course}
-                      </span>
-                    </td>
-                    <td>{certificate.organisation}</td>
-                    <td>{new Date(certificate.fromDate).toLocaleDateString()}</td>
-                    <td>{new Date(certificate.toDate).toLocaleDateString()}</td>
-                    <td>{new Date(certificate.toDate).getFullYear()}</td>
-                    <td>
-                      <button
-                        onClick={() => handleDownload(certificate.downloadLink, `${certificate.course}.pdf`)}
-                        disabled={!certificate.downloadLink}
-                      >
-                        {certificate.downloadLink ? "Download" : "No PDF Available"}
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
+      <tr>
+        {columns.map((col) => (
+          <th key={col}>{col.replace(/([A-Z])/g, " $1").trim()}</th> // Format field names
+        ))}
+      </tr>
+    </thead>
+    <tbody>
+      {papers.map((row, index) => (
+        <tr key={index}>
+          {columns.map((col) => (
+            <td key={col}>{row[col] || "-"}</td> // Show data or fallback
+          ))}
+        </tr>
+      ))}
+    </tbody>
             </table>
           </div>
-        ) : (
-          <p>No certificates found for this batch.</p>
-        )}
+        ) : !loading && <p>No papers found for this type.</p>}
+
+        {loading && <p>Loading papers...</p>}
       </div>
 
-      <footer className="footer">
+      <footer className="Adminreport-footer">
         <p>&copy; 2024 Vaagdevi Colleges. All Rights Reserved.</p>
       </footer>
     </div>
