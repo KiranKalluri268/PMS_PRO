@@ -35,8 +35,8 @@ export const uploadPaper = (data, token) => {
 };
 
 // Fetch papers for a specific student using their email (Authenticated)
-export const getPapers = (facultyId, token) => {
-  return API.get(`/api/papers/faculty/${facultyId}`, {
+export const getPapers = (facultyId, token, paperType = "") => {
+  return API.get(`/api/papers/faculty/${facultyId}${paperType ? `?paperType=${encodeURIComponent(paperType)}` : ""}`, {
     headers: {
       "x-auth-token": token,
     },

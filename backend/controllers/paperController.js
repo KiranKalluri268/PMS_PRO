@@ -158,26 +158,41 @@ exports.getPaperById = async (req, res) => {
 };
 
 exports.getPapersByFaculty = async (req, res) => {
-  const facultyId = req.facultyId;
+  const facultyId = req.params.id;
+  const paperType = req.query.paperType;
 
+  console.log("API HIT: /faculty/:id", facultyId, paperType);
+  
   try {
-    const response = await dynamoDB.send(
-      new QueryCommand({
-        TableName: PAPERS_TABLE,
-        IndexName: "facultyId-index",
-        KeyConditionExpression: "facultyId = :facultyId",
-        ExpressionAttributeValues: marshall({
-          ":facultyId": facultyId,
-        }),
-      })
-    );
+    let queryParams = {
+      TableName: PAPERS_TABLE,
+      IndexName: "facultyId-index",
+      KeyConditionExpression: "facultyId = :facultyId",
+      ExpressionAttributeValues: marshall({
+        ":facultyId": facultyId,
+      }),
+    };
+  
+    // ✅ Fix for reserved keyword "type"
+    if (paperType) {
+      queryParams.FilterExpression = "#type = :paperType";
+      queryParams.ExpressionAttributeNames = { "#type": "type" };  // Alias for "type"
+      queryParams.ExpressionAttributeValues = {
+        ...queryParams.ExpressionAttributeValues,
+        ":paperType": { S: paperType }  // Ensure correct format
+      };
+    }
+  
+    const response = await dynamoDB.send(new QueryCommand(queryParams));
+  
+    let papers = response.Items.map((item) => unmarshall(item));
 
-    const papers = response.Items.map(item => unmarshall(item));
+    console.log("DynamoDB Response:", papers);
 
     if (papers.length === 0) {
-      return res.status(404).json({ message: "No papers found" });
+      console.log("No papers found for selected type.");
+      return res.status(200).json([]);
     }
-    console.log("Fetched papers:",papers)
 
     res.status(200).json(papers);
   } catch (error) {

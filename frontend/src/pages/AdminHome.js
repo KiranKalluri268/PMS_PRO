@@ -1,9 +1,12 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import "../adminhome.css";
 
 const AdminHome = () => {
   const navigate = useNavigate();
+  const paperTypes = ["Journal", "Conference", "Book Chapter", "Textbook", "Patent"];
+  const [displayedPapers, setDisplayedPapers] = useState([...paperTypes, ...paperTypes]); // Start with a duplicated list
+  const listRef = useRef(null);
 
   useEffect(() => {
     const authToken = localStorage.getItem("authToken");
@@ -13,8 +16,6 @@ const AdminHome = () => {
     }
   }, [navigate]);
 
-  const paperTypes = ["Journal", "Conference", "Book Chapter", "Textbook", "Patent"];
-
   const handlePaperTypeSelect = (paperType) => {
     navigate(`/admin-report/${paperType}`);
   };
@@ -22,6 +23,15 @@ const AdminHome = () => {
   const handleLogout = () => {
     localStorage.removeItem("authToken");
     window.location.href = "/";
+  };
+
+  const handleScroll = () => {
+    const list = listRef.current;
+    
+    if (list.scrollTop + list.clientHeight >= list.scrollHeight - 10) {
+      // When reaching the bottom, duplicate the list to create an infinite effect
+      setDisplayedPapers((prev) => [...prev, ...paperTypes]);
+    }
   };
 
   return (
@@ -38,10 +48,10 @@ const AdminHome = () => {
 
       <div className="paper-type-list">
         <h2>Select a Paper Type</h2>
-        <div className="paperTypeList">
+        <div className="paperTypeList" ref={listRef} onScroll={handleScroll}>
           <ul>
-            {paperTypes.map((type) => (
-              <li key={type}>
+            {displayedPapers.map((type, index) => (
+              <li key={index}>
                 <button onClick={() => handlePaperTypeSelect(type)}>{type}</button>
               </li>
             ))}

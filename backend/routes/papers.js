@@ -18,7 +18,10 @@ const router = express.Router();
 router.post("/upload", authMiddleware.authenticate, upload.single("pdf"), uploadPaper);
 
 // Route to get certificates by student ID
-router.get("/faculty/:id", authMiddleware.authenticate, getPapersByFaculty);
+router.get("/faculty/:id", authMiddleware.authenticate, (req, res, next) => {
+  console.log("API HIT: /faculty/:id", req.params.id, req.query.paperType);
+  next();
+}, getPapersByFaculty);
 
 // Route to get a certificate by ID
 router.get("/papers/:id", getPaperById);

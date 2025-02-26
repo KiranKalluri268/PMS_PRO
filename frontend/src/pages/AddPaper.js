@@ -295,7 +295,7 @@ const AddPaper = ({ id }) => {
           <Link to={`/faculty-home/${decodedToken.userId}`}>Go back to home</Link>
         </form>
       </div>
-      <footer className="footer">
+      <footer className="upload-footer">
         <p>&copy; 2024 Vaagdevi Colleges. All Rights Reserved.</p>
       </footer>
     </div>
