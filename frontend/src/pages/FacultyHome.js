@@ -6,12 +6,9 @@ import "../facultyhome.css";
 const FacultyHome = () => {
   const { id: facultyId } = useParams();
   const [papers, setPapers] = useState([]);
-  const [selectedPaperType, setSelectedPaperType] = useState(""); // Store selected paper type
+  const [selectedPaperType, setSelectedPaperType] = useState("");
   const navigate = useNavigate();
   const token = localStorage.getItem("authToken");
-
-  console.log("token in facultyhome:", token);
-  console.log("UserId", facultyId);
 
   useEffect(() => {
     if (!token) {
@@ -44,7 +41,7 @@ const FacultyHome = () => {
 
   useEffect(() => {
     fetchPapers(selectedPaperType);
-  }, [facultyId, token, selectedPaperType, navigate]);  
+  }, [facultyId, token, selectedPaperType, navigate]);
 
   const handlePaperTypeChange = (event) => {
     const selectedType = event.target.value;
@@ -91,6 +88,10 @@ const FacultyHome = () => {
     }
   };
 
+  const handleEdit = (paperId) => {
+    navigate(`/edit-paper/${paperId}`);
+  };
+
   const decodedToken = JSON.parse(atob(token.split(".")[1]));
   const userName = decodedToken.userName;
 
@@ -98,6 +99,85 @@ const FacultyHome = () => {
     localStorage.removeItem("authToken");
     window.location.href = "/";
   };
+
+  // 🔹 Field mappings to match API response keys
+  const defaultHeader = {
+    All : {
+      "Title": "title",
+      "Authors": "authors",
+      "Indexing": "indexing",
+      "Transactions": "transactions",
+      "DOI": "doi",
+      "Date of Acceptance": "dateOfAcceptance",
+      "Date of Publishing": "dateOfPublishing",
+      "Volume": "volume",
+      "Page Numbers": "pageNumbers",
+      "Year of Conference": "yearOfConference",
+      "Book Title": "bookTitle",
+      "Publisher": "nameOfPublisher",
+      "Total Pages": "pageNumbers",
+      "Application Number": "patentAppNum",
+      "Field of Study": "filedOfStudy",
+      "Filed Date": "filingDate",
+      "Granted Date": "grantDate",
+    },
+  };
+
+  const tableHeaders = {
+    Journal: {
+      "Title": "title",
+      "Authors": "authors",
+      "Indexing": "indexing",
+      "Transactions": "transactions",
+      "DOI": "doi",
+      "Date of Acceptance": "dateOfAcceptance",
+      "Date of Publishing": "dateOfPublishing",
+      "Volume": "volume",
+      "Page Numbers": "pageNumbers",
+    },
+    Conference: {
+      "Title": "title",
+      "Authors": "authors",
+      "Indexing": "indexing",
+      "Transactions": "transactions",
+      "Year of Conference": "yearOfConference",
+      "Date of Acceptance": "dateOfAcceptance",
+      "Date of Publishing": "dateOfPublishing",
+      "DOI": "doi",
+    },
+    "Book Chapter": {
+      "Title": "title",
+      "Indexing": "indexing",
+      "Transactions": "transactions",
+      "Date of Acceptance": "dateOfAcceptance",
+      "Date of Publishing": "dateOfPublishing",
+      "DOI": "doi",
+    },
+    Textbook: {
+      "Title": "title",
+      "Authors": "authors",
+      "Publisher": "nameOfPublisher",
+      "Indexing": "indexing",
+      "Transactions": "transactions",
+      "Date of Acceptance": "dateOfAcceptance",
+      "Date of Publishing": "dateOfPublishing",
+      "DOI": "doi",
+      "Total Pages": "pageNumbers",
+    },
+    Patent: {
+      "Application Number": "patentAppNum",
+      "Title": "title",
+      "Authors": "authors",
+      "Field of Study": "filedOfStudy",
+      "Date of Publishing": "dateOfPublishing",
+      "Filed Date": "filingDate",
+      "Granted Date": "grantDate",
+    },
+  };
+
+  const selectedHeaders = selectedPaperType
+    ? tableHeaders[selectedPaperType] || {}
+    : defaultHeader["All"];
 
   return (
     <div className="Faculty-container">
@@ -122,11 +202,11 @@ const FacultyHome = () => {
           <label htmlFor="paperType">Select Paper Type: </label>
           <select id="paperType" onChange={handlePaperTypeChange}>
             <option value="">All</option>
-            <option value="Journal">Journal</option>
-            <option value="Conference">Conference</option>
-            <option value="Book Chapter">Book Chapter</option>
-            <option value="Textbook">Textbook</option>
-            <option value="Patent">Patent</option>
+            {Object.keys(tableHeaders).map((type) => (
+              <option key={type} value={type}>
+                {type}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -135,59 +215,63 @@ const FacultyHome = () => {
             <thead>
               <tr>
                 <th>S.No</th>
-                <th>Title of the Paper</th>
-                <th>Indexing</th>
-                <th>Transactions</th>
-                <th>Date of Acceptance</th>
-                <th>Date of Publishing</th>
-                <th>DOI</th>
-                <th>Volume</th>
-                <th>Page Numbers</th>
+                {Object.keys(selectedHeaders).map((column, index) => (
+                  <th key={index}>{column}</th>
+                ))}
                 <th>Actions</th>
+                <th>Download</th>
               </tr>
             </thead>
             <tbody>
-  {papers.length > 0 ? (
-    papers.map((paper, index) => (
-      <tr key={paper.paperId}>
-        <td>{index + 1}</td>
-        <td>
-          <span
-            style={{
-              color: paper.paperLink ? "blue" : "black",
-              cursor: paper.paperLink ? "pointer" : "default",
-            }}
-            onClick={() => handlePaperLinkClick(paper.paperLink)}
-          >
-            {paper.title}
-          </span>
-        </td>
-        <td>{paper.indexing}</td>
-        <td>{paper.transactions}</td>
-        <td>{paper.dateOfAcceptance}</td>
-        <td>{paper.dateOfPublishing}</td>
-        <td>{paper.doi}</td>
-        <td>{paper.volume}</td>
-        <td>{paper.pageNumbers}</td>
-        <td>
-          <button
-            onClick={() => handleDownload(paper.downloadLink, `${paper.title}.pdf`)}
-            disabled={!paper.downloadLink}
-          >
-            {paper.downloadLink ? "Download" : "No PDF Available"}
-          </button>
-        </td>
-      </tr>
-    ))
-  ) : (
-    // ✅ Show this message when no papers are found
-    <tr>
-      <td colSpan="10" style={{ textAlign: "center", color: "red" }}>
-        No papers found for the selected type.
-      </td>
-    </tr>
-  )}
-</tbody>
+              {papers.length > 0 ? (
+                papers.map((paper, index) => (
+                  <tr key={paper.paperId}>
+                    {/* ✅ Fixed S.No Column */}
+                    <td>{index + 1}</td>
+
+                    {/* ✅ Correctly Mapped Columns */}
+                    {Object.values(selectedHeaders).map((field, i) => (
+                      <td key={i}>
+                        {field === "title" ? (
+                          <span
+                            style={{
+                              color: paper.paperLink ? "blue" : "black",
+                              cursor: paper.paperLink ? "pointer" : "default",
+                            }}
+                            onClick={() => handlePaperLinkClick(paper.paperLink)}
+                          >
+                            {paper[field] || ""}
+                          </span>
+                        ) : (
+                          paper[field] || ""
+                        )}
+                      </td>
+                    ))}
+
+                    {/* ✅ Actions Column */}
+                    <td>
+                      <button onClick={() => handleEdit(paper.paperId)}>Edit</button>
+                    </td>
+
+                    {/* ✅ Download Column */}
+                    <td>
+                      <button
+                        onClick={() => handleDownload(paper.downloadLink, `${paper.title}.pdf`)}
+                        disabled={!paper.downloadLink}
+                      >
+                        {paper.downloadLink ? "Download" : "No PDF Available"}
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={Object.keys(selectedHeaders).length + 3} style={{ textAlign: "center", color: "red" }}>
+                    No papers found for the selected type.
+                  </td>
+                </tr>
+              )}
+            </tbody>
           </table>
         </div>
       </div>

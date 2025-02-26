@@ -78,6 +78,10 @@ body {
   transition: box-shadow 0.3s ease-in-out;
 }
 
+.paper-type-filter {
+  margin-bottom: 10px;
+}
+
 .FacultyTable-wrapper {
   overflow-y: auto;
   width: 100%;

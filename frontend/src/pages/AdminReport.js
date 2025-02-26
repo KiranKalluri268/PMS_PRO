@@ -71,23 +71,53 @@ const AdminReport = () => {
   }, [paperType, navigate]);
 
   // Define different column structures for each paper type
-  const paperFields = {
-    Journal: ["title", "indexing", "transactions", "dateOfAcceptance", "dateOfPublishing", "doi", "volume", "pageNumbers", "paperLink", "onlineLink"],
-    Conference: ["title", "indexing", "transactions", "dateOfAcceptance", "dateOfPublishing", "doi", "conferenceName", "paperLink", "onlineLink"],
-    "Book Chapter": ["title", "indexing", "transactions", "dateOfAcceptance", "dateOfPublishing", "doi", "bookTitle", "paperLink", "onlineLink"],
-    Textbook: ["title", "indexing", "transactions", "dateOfAcceptance", "dateOfPublishing", "doi", "bookTitle", "paperLink", "onlineLink"],
-    Patent: ["title", "filingDate", "dateOfPublishing", "GrantDate", "paperLink", "onlineLink"]
+  const tableHeaders = {
+    Journal: { "Title": "title", "Authors": "authors", "Indexing": "indexing", "Transactions": "transactions", "DOI": "doi", "Date of Acceptance": "dateOfAcceptance", "Date of Publishing": "dateOfPublishing", "Volume": "volume", "Page Numbers": "pageNumbers" },
+    Conference: { "Title": "title", "Authors": "authors", "Indexing": "indexing", "Transactions": "transactions", "Year of Conference": "yearOfConference", "Date of Acceptance": "dateOfAcceptance", "Date of Publishing": "dateOfPublishing", "DOI": "doi" },
+    "Book Chapter": { "Title": "title", "Indexing": "indexing", "Transactions": "transactions", "Date of Acceptance": "dateOfAcceptance", "Date of Publishing": "dateOfPublishing", "DOI": "doi" },
+    Textbook: { "Title": "title", "Authors": "authors", "Publisher": "nameOfPublisher", "Indexing": "indexing", "Transactions": "transactions", "Date of Acceptance": "dateOfAcceptance", "Date of Publishing": "dateOfPublishing", "DOI": "doi", "Total Pages": "pageNumbers" },
+    Patent: { "Application Number": "patentAppNum", "Title": "title", "Authors": "authors", "Field of Study": "filedOfStudy", "Date of Publishing": "dateOfPublishing", "Filed Date": "filingDate", "Granted Date": "grantDate" },
   };
 
-  // Get column names dynamically based on paperType
-  const columns = paperFields[paperType] || [];
+  const selectedHeaders = tableHeaders[paperType] || {};
+
+  const handleDownload = async (downloadLink, fileName) => {
+    if (!downloadLink) {
+      alert("No download link available.");
+      return;
+    }
+
+    const fileNameWithExtension = fileName.endsWith('.pdf') ? fileName : `${fileName}.pdf`;
+  
+    try {
+      const response = await fetch(downloadLink);
+      if (!response.ok) {
+        throw new Error('Failed to fetch the file.');
+      }
+      const blob = await response.blob();
+
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileNameWithExtension;
+  
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading file:', error);
+      alert('Failed to download the file.');
+    }
+  };
 
   const handleDownloadExcel = () => {
     const ws = XLSX.utils.json_to_sheet(
       papers.map((paper, index) => {
         let rowData = { SNo: index + 1 };
-        columns.forEach((col) => {
-          rowData[col] = paper[col.toLowerCase().replace(/\s+/g, "")] || "N/A";
+        Object.entries(selectedHeaders).forEach(([column, field]) => {
+          rowData[column] = paper[field] || "N/A";
         });
         return rowData;
       })
@@ -124,27 +154,49 @@ const AdminReport = () => {
         </button>
 
         {papers.length > 0 ? (
-          <div className="table-wrapper">
-            <table className="report-table">
+          <div className="FacultyTable-wrapper">
+            <table>
               <thead>
-      <tr>
-        {columns.map((col) => (
-          <th key={col}>{col.replace(/([A-Z])/g, " $1").trim()}</th> // Format field names
-        ))}
-      </tr>
-    </thead>
-    <tbody>
-      {papers.map((row, index) => (
-        <tr key={index}>
-          {columns.map((col) => (
-            <td key={col}>{row[col] || "-"}</td> // Show data or fallback
-          ))}
-        </tr>
-      ))}
-    </tbody>
+                <tr>
+                  <th>S.No</th>
+                  {Object.keys(selectedHeaders).map((column, index) => (
+                    <th key={index}>{column}</th>
+                  ))}
+                  <th>Download</th>
+                </tr>
+              </thead>
+              <tbody>
+                {papers.map((paper, index) => (
+                  <tr key={paper.paperId}>
+                    <td>{index + 1}</td>
+                    {Object.values(selectedHeaders).map((field, i) => (
+                      <td key={i}>
+                        {field === "title" ? (
+                          <span
+                            style={{
+                              color: paper.paperLink ? "blue" : "black",
+                              cursor: paper.paperLink ? "pointer" : "default",
+                            }}
+                            onClick={() => paper.paperLink && window.open(paper.paperLink, "_blank")}
+                          >
+                            {paper[field] || ""}
+                          </span>
+                        ) : (
+                          paper[field] || ""
+                        )}
+                      </td>
+                    ))}
+                    <td>
+                      <button onClick={() => handleDownload(paper.downloadLink, paper.title)} disabled={!paper.downloadLink}>
+                        {paper.downloadLink ? "Download" : "No PDF Available"}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
             </table>
           </div>
-        ) : !loading && <p>No papers found for this type.</p>}
+        ) : !loading && <p>No papers found for the selected type.</p>}
 
         {loading && <p>Loading papers...</p>}
       </div>

@@ -9,6 +9,13 @@ const AddPaper = ({ id }) => {
     type: "Journal",
     publisherName: "",
     title: "",
+    authors: "", //new
+    patentAppNum: "", //new
+    filedOfStudy: "", //new
+    confenrenceProceedings: "", //new
+    yearOfConference: "", //new
+    nameOfPublisher: "", //new
+    grantDate: "", //new
     indexing: "",
     transactions: "",
     dateOfAcceptance: "",
@@ -18,7 +25,6 @@ const AddPaper = ({ id }) => {
     pageNumbers: "",
     paperLink: "",
     onlineLink: "",
-    // Unique Fields
     conferenceName: "",
     bookTitle: "",
     patentNumber: "",
@@ -92,7 +98,6 @@ const AddPaper = ({ id }) => {
     }
   };
   
-
   return (
     <div className="upload-form-container">
       <header className="AddPaperHeader">
@@ -123,8 +128,12 @@ const AddPaper = ({ id }) => {
           {formData.type === "Journal" && (
             <>
           <div className="input-group">
-            <label htmlFor="title">Title of the Paper:</label>
+            <label htmlFor="title">Title of the Journal:</label>
             <input id="title" type="text" name="title" onChange={handleChange} placeholder="Enter Title" required />
+          </div>
+          <div className="input-group">
+            <label htmlFor="authors">Authors:</label>
+            <input id="authors" type="text" name="authors" onChange={handleChange} placeholder="Enter author's names" required />
           </div>
           <div className="input-group">
             <label htmlFor="indexing">Indexing:</label>
@@ -143,8 +152,8 @@ const AddPaper = ({ id }) => {
             <input id="dateOfPublishing" type="date" name="dateOfPublishing" onChange={handleChange} required />
           </div>
           <div className="input-group">
-            <label htmlFor="doi">DOI:</label>
-            <input id="doi" type="text" name="doi" onChange={handleChange} placeholder="Enter DOI" required />
+            <label htmlFor="doi">DOI Link:</label>
+            <input id="doi" type="url" name="doi" onChange={handleChange} placeholder="Enter DOI Link" required />
           </div>
               <div className="input-group">
                 <label htmlFor="volume">Volume:</label>
@@ -154,14 +163,22 @@ const AddPaper = ({ id }) => {
                 <label htmlFor="pageNumbers">Page Numbers:</label>
                 <input id="pageNumbers" type="text" name="pageNumbers" onChange={handleChange} placeholder="Enter PageNumbers" required />
               </div>
+          <div className="input-group">
+            <label htmlFor="onlineLink">Online Link of Journal:</label>
+            <input id="onlineLink" type="url" name="onlineLink" onChange={handleChange} placeholder="Enter Online Link to journal(optional)" />
+          </div>
             </>
           )}
 
           {formData.type === "Conference" && (
             <>
-            <div className="input-group">
-            <label htmlFor="title">Title of the Paper:</label>
-            <input id="title" type="text" name="title" onChange={handleChange} placeholder="Enter Title" required />
+          <div className="input-group">
+            <label htmlFor="title">Title of the Conference:</label>
+            <input id="title" type="text" name="title" onChange={handleChange} placeholder="Enter Conference Title" required />
+          </div>
+          <div className="input-group">
+            <label htmlFor="authors">Authors:</label>
+            <input id="authors" type="text" name="authors" onChange={handleChange} placeholder="Enter author's names" required />
           </div>
             <div className="input-group">
             <label htmlFor="indexing">Indexing:</label>
@@ -180,20 +197,20 @@ const AddPaper = ({ id }) => {
             <input id="dateOfPublishing" type="date" name="dateOfPublishing" onChange={handleChange} required />
           </div>
           <div className="input-group">
-            <label htmlFor="doi">DOI:</label>
-            <input id="doi" type="text" name="doi" onChange={handleChange} placeholder="Enter DOI" required />
+            <label htmlFor="yearOfConference">Year of Conference:</label>
+            <input id="yearOfConference" type="text" name="yearOfConference" onChange={handleChange} required />
           </div>
-              <div className="input-group">
-                <label htmlFor="conferenceName">Conference Name:</label>
-                <input id="conferenceName" type="text" name="conferenceName" onChange={handleChange} placeholder="Enter conference name" required />
-              </div>
+          <div className="input-group">
+            <label htmlFor="doi">DOI Link:</label>
+            <input id="doi" type="url" name="doi" onChange={handleChange} placeholder="Enter DOI Link" required />
+          </div>
             </>
           )}
 
           {formData.type === "Book Chapter" && (
             <>
             <div className="input-group">
-            <label htmlFor="title">Title of the Paper:</label>
+            <label htmlFor="title">Title of the Book Chapter:</label>
             <input id="title" type="text" name="title" onChange={handleChange} placeholder="Enter Title" required />
           </div>
             <div className="input-group">
@@ -216,18 +233,22 @@ const AddPaper = ({ id }) => {
             <label htmlFor="doi">DOI:</label>
             <input id="doi" type="text" name="doi" onChange={handleChange} placeholder="Enter DOI" required />
           </div>
-              <div className="input-group">
-                <label htmlFor="bookTitle">Book Title:</label>
-                <input id="bookTitle" type="text" name="bookTitle" onChange={handleChange} placeholder="Enter Title" required />
-              </div>
             </>
           )}
 
           {formData.type === "Textbook" && (
             <>
             <div className="input-group">
-            <label htmlFor="title">Title of the Paper:</label>
+            <label htmlFor="title">Title of the Book:</label>
             <input id="title" type="text" name="title" onChange={handleChange} placeholder="Enter Title" required />
+          </div>
+          <div className="input-group">
+            <label htmlFor="authors">Authors:</label>
+            <input id="authors" type="text" name="authors" onChange={handleChange} placeholder="Enter author's names" required />
+          </div>
+          <div className="input-group">
+            <label htmlFor="nameOfPublisher">Publisher:</label>
+            <input id="nameOfPublisher" type="text" name="nameOfPublisher" onChange={handleChange} placeholder="Enter Publisher's names" required />
           </div>
             <div className="input-group">
             <label htmlFor="indexing">Indexing:</label>
@@ -249,18 +270,34 @@ const AddPaper = ({ id }) => {
             <label htmlFor="doi">DOI:</label>
             <input id="doi" type="text" name="doi" onChange={handleChange} placeholder="Enter DOI" required />
           </div>
-              <div className="input-group">
-                <label htmlFor="bookTitle">Textbook Title:</label>
-                <input id="bookTitle" type="text" name="bookTitle" onChange={handleChange} placeholder="Enter bookTitle" required />
-              </div>
+          <div className="input-group">
+            <label htmlFor="onlineLink">Online Link of Textbook:</label>
+            <input id="onlineLink" type="url" name="onlineLink" onChange={handleChange} placeholder="Enter Online Link to paper(optional)" />
+          </div>
+          <div className="input-group">
+            <label htmlFor="pageNumbers">Page Numbers:</label>
+            <input id="pageNumbers" type="text" name="pageNumbers" onChange={handleChange} placeholder="Enter PageNumbers" required />
+          </div>
             </>
           )}
 
           {formData.type === "Patent" && (
             <>
             <div className="input-group">
+              <label htmlFor="patentAppNum">Application Number:</label>
+              <input id="patentAppNum" type="text" name="patentAppNum" onChange={handleChange} placeholder="Enter patent's application number" required />
+            </div>
+            <div className="input-group">
             <label htmlFor="title">Title of the Patent:</label>
             <input id="title" type="text" name="title" onChange={handleChange} placeholder="Enter Title" required />
+          </div>
+          <div className="input-group">
+            <label htmlFor="authors">Authors:</label>
+            <input id="authors" type="text" name="authors" onChange={handleChange} placeholder="Enter author's names" required />
+          </div>
+          <div className="input-group">
+            <label htmlFor="filedOfStudy">Field of Study:</label>
+            <input id="filedOfStudy" type="text" name="filedOfStudy" onChange={handleChange} placeholder="Field of study of patent" required />
           </div>
           <div className="input-group">
             <label htmlFor="dateOfPublishing">Date of Publishing:</label>
@@ -272,14 +309,11 @@ const AddPaper = ({ id }) => {
               </div>
               <div className="input-group">
                 <label htmlFor="grantDate">Date fo grant:</label>
-                <input id="GrantDate" type="date" name="GrantDate" onChange={handleChange} placeholder="Enter grant Date" required />
+                <input id="grantDate" type="date" name="grantDate" onChange={handleChange} placeholder="Enter grant Date" required />
               </div>
             </>
           )}
-          <div className="input-group">
-            <label htmlFor="onlineLink">Online Link:</label>
-            <input id="onlineLink" type="url" name="onlineLink" onChange={handleChange} placeholder="Enter Online Link to paper(optional)" />
-          </div>
+
           <div className="input-group">
             <label htmlFor="paperLink">Paper Link:</label>
             <input id="paperLink" type="url" name="paperLink" onChange={handleChange} placeholder="Enter Paper Link of drive" />
