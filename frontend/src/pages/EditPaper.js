@@ -172,7 +172,7 @@ const EditPaper = () => {
           <button type="submit">Update Paper</button>
         </form>
       </div>
-      <footer className="footer">
+      <footer className="Edit-footer">
         <p>&copy; 2024 Vaagdevi Colleges. All Rights Reserved.</p>
       </footer>
     </div>

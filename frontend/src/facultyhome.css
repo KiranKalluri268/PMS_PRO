@@ -14,28 +14,30 @@ body {
 
 /* Faculty Container */
 .Faculty-container {
-  display: flex;
-  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  display: grid;
+  grid-template-rows: 1.6fr 8fr 0.4fr;
+  grid-template-columns: 1.5fr 8fr 0.5fr;
   align-items: center;
-  justify-content: flex-start;
   background-color: var(--background-blur);
-  min-height: 100vh;
   padding: 0px;
-  overflow-y: auto;
 }
 
 /* Header */
 .FacultyHeader {
+  grid-column: span 3;
   background-color: var(--background-blur);
-  backdrop-filter: blur(5px);
-  padding: 1.5rem 0;
+  backdrop-filter: blur(10px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
   text-align: center;
   width: 100%;
+  height: 100%;
   position: sticky;
   top: 0;
   left: 0;
   z-index: 1000;
+  padding: 0;
 }
 
 /* Logo Styling */
@@ -63,56 +65,110 @@ body {
 
 /* List Container */
 .Faculty-list {
-  background-color: var(--background-blur);
-  backdrop-filter: blur(5px);
-  padding: 1rem;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
+  grid-column-start: 2;
+  grid-column-end: 3;
+  margin-top: 0.5vh;
+  padding-top: 2vh;
   width: 95vw;
+  height: 83vh;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 5vh;
-  max-height: 65vh;
   transition: box-shadow 0.3s ease-in-out;
-}
-
-.paper-type-filter {
-  margin-bottom: 10px;
-}
-
-.FacultyTable-wrapper {
   overflow-y: auto;
-  width: 100%;
 }
 
-.Faculty-list:hover, .FacultyTable-wrapper:hover {
-  box-shadow: 0 0 10px 5px rgba(255, 255, 255, 0.7),
-              0 0 20px 10px rgba(255, 255, 255, 0.5),
-              0 0 30px 15px rgba(255, 255, 255, 0.3);
+.Details {
+  width: 95%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(0.2rem);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.3);
+  border-radius: 1rem;
+}
+
+.Username {
+  text-align: left;
+  width: 95%;
+  margin: 0.5rem;
+  padding: 0.5rem;
+  border-bottom: solid brown;
+}
+
+.Username h1 {
+  position: relative;
+  left: 4rem;
+}
+
+.mem {
+  width: 95%;
+  margin: 0.5rem;
+  padding: 0.5rem;
+  padding-top: 0;
+  margin-top: 0;
+}
+
+.Test {
+  width: 95%;
+  backdrop-filter: blur(0.2rem);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.3);
+  border-radius: 1rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.nav {
+  align-self: center;
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  gap: 1rem;
+  justify-content: space-evenly;
+  align-items: center;
+  margin: 0.5rem;
+  margin-bottom: 0;
+  padding: 0.5rem;
+}
+
+/* Faculty Table Wrapper */
+.FacultyTable-wrapper {
+  padding: 0.5rem;
+  padding-top: 0;
+  overflow-y: auto; /* Enables vertical scrolling */
+  width: 100%;
+  min-height: 20vh;
+  margin-bottom: 1rem;
 }
 
 /* Table Styling */
-table {
+.FacultyTable-wrapper table {
   width: 100%;
   border-collapse: collapse;
-  table-layout: auto;
+  table-layout: auto; /* Columns adjust dynamically */
 }
 
-th, td {
+/* Fixed Table Header */
+.FacultyTable-wrapper thead {
+  position: sticky;
+  top: 0;
+  background-color: var(--secondary-color);
+  z-index: 2;
+}
+
+/* Ensure Proper Column Alignment */
+.FacultyTable-wrapper th,
+.FacultyTable-wrapper td {
   padding: 1rem;
   text-align: left;
   border: 1px solid #ddd;
-  white-space: nowrap;
+  white-space: nowrap; /* Prevents text wrapping */
+  vertical-align: middle; /* Ensures proper vertical alignment */
 }
 
-th {
-  background-color: var(--secondary-color);
-  font-weight: bold;
-  color: white;
-}
-
+/* Even Row Background */
 tr:nth-child(even) {
   background-color: #f2f2f2;
 }
@@ -134,17 +190,13 @@ button:hover {
 
 /* Footer */
 .Faculty-footer {
-  width: 100vw;
   background-color: #333;
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  text-align: center;
-  height: 2vh;
+  height: 3vh;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  position: fixed;
-  bottom: 0;
 }
 
 /* Responsive Design */
@@ -165,7 +217,7 @@ button:hover {
     font-size: 12px;
   }
 
-  .list {
-    margin-top: 90px;
+  .FacultyTable-wrapper {
+    width: 90%;
   }
 }

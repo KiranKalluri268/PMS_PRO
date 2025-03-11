@@ -4,6 +4,7 @@ const authRoutes = require("./routes/auth");
 const papersRoutes = require("./routes/papers");
 const batchRoutes = require("./routes/batches");
 const adminRoutes = require("./routes/admin");
+const membershipRoutes = require("./routes/membership");
 const dotenv = require("dotenv");
 const nodemailer = require("nodemailer");
 const path = require("path");
@@ -63,6 +64,7 @@ app.use("/api/auth", authRoutes);  // For authentication (register/login)
 app.use("/api/papers", papersRoutes);  // For certificates
 app.use("/api/batches", batchRoutes);  // For batches
 app.use("/api/admin", adminRoutes);  // For admin functionalities
+app.use("/api/membership", membershipRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

@@ -59,7 +59,7 @@ const AdminHome = () => {
         </div>
       </div>
 
-      <footer className="footer">
+      <footer className="Adminfooter">
         <p>&copy; 2024 Vaagdevi Colleges. All Rights Reserved.</p>
       </footer>
     </div>

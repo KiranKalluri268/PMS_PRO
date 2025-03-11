@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
+import MembershipList from "../components/MembershipList";
 import { getPapers } from "../api";
-import { useNavigate, useParams } from "react-router-dom";
+
+import { Link, useNavigate, useParams } from "react-router-dom";
 import "../facultyhome.css";
 
 const FacultyHome = () => {
@@ -192,12 +194,22 @@ const FacultyHome = () => {
       </header>
 
       <div className="Faculty-list">
-        <div className="nav">
-          <h1>Welcome, {userName}</h1>
-          <button onClick={() => navigate("/add-paper")}>Add New Paper</button>
+        <div className="Details">
+        <div className="Username">
+        <h1>Welcome, {userName}</h1>
         </div>
+        <div className="mem">
+          <MembershipList /> 
+          <Link to="/Addmembership">Add Membership..................</Link>
+        </div>
+        </div>
+        <div className="Test">
+        <div className="nav">
+          <div>
+          <button onClick={() => navigate("/add-paper")}>Add New Paper</button>
+          </div>
 
-        {/* Paper Type Dropdown */}
+          {/* Paper Type Dropdown */}
         <div className="paper-type-filter">
           <label htmlFor="paperType">Select Paper Type: </label>
           <select id="paperType" onChange={handlePaperTypeChange}>
@@ -208,6 +220,8 @@ const FacultyHome = () => {
               </option>
             ))}
           </select>
+        </div>
+
         </div>
 
         <div className="FacultyTable-wrapper">
@@ -273,6 +287,7 @@ const FacultyHome = () => {
               )}
             </tbody>
           </table>
+        </div>
         </div>
       </div>
 

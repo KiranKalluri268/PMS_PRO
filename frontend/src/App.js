@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import axios from 'axios';
 import './App.css';
+import "bootstrap/dist/css/bootstrap.min.css";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import FacultyHome from "./pages/FacultyHome";
 import AdminHome from "./pages/AdminHome";
@@ -12,6 +13,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import AddPaper from './pages/AddPaper';
 import EditPaper from './pages/EditPaper';
+import Membership from './pages/AddMembership';
 
 // Set the global baseURL for all Axios requests
 axios.defaults.baseURL = process.env.REACT_APP_API_URL; // or use an environment variable for flexibility
@@ -33,6 +35,7 @@ function App() {
         <Route path="/verify-email" element={<VerifyEmail/>} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/Addmembership" element={<Membership/>} />
       </Routes>
     </Router>
   );

@@ -1,5 +1,4 @@
 const jwt = require("jsonwebtoken");
-const User = require("../models/User");
 
 module.exports = {
   // General authentication middleware
@@ -7,7 +6,7 @@ module.exports = {
     const token = req.header("x-auth-token");
     console.log("token in middleware:", token);
     if (!token) {
-      return res.status(401).json({ message: "Access denied" });
+      return res.status(401).json({ message: "Access Denied" });
     }
 
     try {

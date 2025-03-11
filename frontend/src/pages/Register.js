@@ -114,7 +114,7 @@ const Register = () => {
         </form>
       </div>
 
-      <footer className="footer">
+      <footer className="Registerfooter">
         <p>&copy; 2024 Vaagdevi Colleges. All Rights Reserved.</p>
       </footer>
     </div>

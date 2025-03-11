@@ -96,7 +96,7 @@ const Login = () => {
       </div>
 
       {/* Footer Section */}
-      <footer className="footer">
+      <footer className="Loginfooter">
         <p>&copy; 2024 Vaagdevi Colleges. All Rights Reserved.</p>
       </footer>
     </div>

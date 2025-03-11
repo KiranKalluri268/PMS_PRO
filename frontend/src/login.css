@@ -98,6 +98,22 @@
   margin-bottom: 30px;
 }
 
+.Loginfooter {
+  width: 100%;
+  background-color: #333;
+  color: white;
+  text-align: center;
+  padding: 10px 0;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  position: absolute;
+  bottom: 0;
+}
+
+.Loginfooter p {
+  margin: 0;
+  font-size: 14px;
+}
+
 /* Mobile responsiveness */
 @media (max-width: 768px) {
   .LoginHeader-logo {

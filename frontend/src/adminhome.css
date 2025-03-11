@@ -103,7 +103,7 @@
   background-color: #970f0f;
 }
 
-.footer {
+.Adminfooter {
   width: 100%;
   background-color: #333;
   color: white;
@@ -114,7 +114,7 @@
   bottom: 0;
 }
 
-.footer p {
+.Adminfooter p {
   margin: 0;
   font-size: 14px;
 }
